@@ -1,9 +1,12 @@
 var board = []
+var deck = []
+var players = []
+var turn = 0
 
 var numRow = 15
 var numCol = 15
 var canvas_width = 751
-var canvas_height = 751
+var canvas_height = 851
 var NONE = 0
 var DOUBLE_LETTER = 1
 var TRIBLE_LETTER = 2
@@ -19,6 +22,7 @@ var propertyString = ["", "DL", "TL", "DW", "TW"]
 
 
 function initBoard(){
+  board = []
   for (var j = 0; j < numRow; j++) {
     var rowArray = []
     for (var i = 0; i < numCol; i++) {
@@ -85,21 +89,43 @@ function initBoard(){
       board[i][14].property = TRIBLE_WORD
     }
   }
+  return board
+}
 
+function initDeck() {
+  deck = []
+  for (key in tiles) {
+    for (var i = 0; i < tiles[key][1]; i++) {
+      deck.push(key)
+    }
+  }
+  return deck
+}
 
+function initPlayer(num) {
+  players = []
+  for (var i = 0; i < num; i++) {
+    players.push(new Player())
+  }
+  for (var i = 0; i < players.length; i++) {
+    players[i].draw()
+  }
+  return players
 }
 
 
 function setup() {
   createCanvas(canvas_width,canvas_height)
-  initBoard()
+  deck = initDeck()
+  board = initBoard()
+  players = initPlayer(1)
+  turn = 0
 }
 
 function draw() {
-  background(0)
+  background(255)
   stroke(0)
   fill(255)
-
   for (var i = 0; i < numCol; i++) {
     for (var j = 0; j < numRow; j++) {
       if (board[i][j].intercept(mouseX, mouseY)) {
@@ -109,5 +135,29 @@ function draw() {
       }
       board[i][j].display()
     }
+  }
+  for (var i = 0; i < players.length; i++) {
+    players[i].hand.forEach(function(element) {
+      element.display()
+    })
+  }
+}
+
+selected = null
+
+function mousePressed() {
+  players[0].hand.forEach(function(element) {
+    if (element.intercept(mouseX, mouseY)) {
+      selected = element
+    }
+  })
+}
+
+function mouseDragged() {
+  if (selected != null) {
+    originX = selected.x
+    originY = selected.y
+    selected.x = mouseX
+    selected.y = mouseY
   }
 }
