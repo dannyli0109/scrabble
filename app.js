@@ -19,6 +19,8 @@ var pinkC = [255,182,193]
 var orangeC = [255,165,0]
 var boardColors = [whiteC, lightBlueC, darkBlueC, pinkC, orangeC]
 var propertyString = ["", "DL", "TL", "DW", "TW"]
+var resetButton = document.querySelectorAll(".buttonGroup")[0]
+var varifyButton = document.querySelectorAll(".buttonGroup")[1]
 
 
 function initBoard(){
@@ -113,13 +115,12 @@ function initPlayer(num) {
   return players
 }
 
-function calculateScore() {
-  
-}
+
 
 
 function setup() {
-  createCanvas(canvas_width,canvas_height)
+  canvas = createCanvas(canvas_width,canvas_height)
+  canvas.parent("canvasDiv")
   deck = initDeck()
   board = initBoard()
   players = initPlayer(1)
@@ -148,6 +149,7 @@ function draw() {
 }
 
 selected = null
+currentTurnPlaced = []
 
 function mousePressed() {
   players[0].hand.forEach(function(element) {
@@ -170,9 +172,10 @@ function mouseReleased() {
   if (selected != null) {
     for (var i = 0; i < numCol; i++) {
       for (var j = 0; j < numRow; j++) {
-        if (board[i][j].intercept(mouseX, mouseY)) {
+        if (board[i][j].intercept(mouseX, mouseY) && !board[i][j].occupied) {
           board[i][j].occupied = selected
-          selected.placed = true;
+          currentTurnPlaced.push(board[i][j])
+          selected.placed = board[i][j];
         } else {
           selected.x = selected.originX
           selected.y = selected.originY
@@ -182,3 +185,68 @@ function mouseReleased() {
     selected = null
   }
 }
+
+function resetTile() {
+  players[0].hand.forEach(function(element) {
+    element.placed = null;
+    element.x = element.originX;
+    element.y = element.originY;
+  })
+
+  currentTurnPlaced.forEach(function(element) {
+    element.occupied = null;
+  })
+  currentTurnPlaced = []
+}
+
+function varifyTiles() {
+  if (currentTurnPlaced.length > 0){
+    first = currentTurnPlaced[0]
+
+    if (currentTurnPlaced.every(function(element) {
+      return element.i == first.i
+    }) || currentTurnPlaced.every(function(element) {
+      return element.j == first.j
+    })) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function varify() {
+  if (varifyTiles()) {
+    players[0].score += calculateSum()
+    currentTurnPlaced.forEach(function(element) {
+      players[0].hand[players[0].hand.indexOf(element.occupied)] = null
+    })
+    players[0].draw()
+    currentTurnPlaced = []
+    console.log(players[0].score);
+  } else {
+    resetTile()
+  }
+}
+
+function calculateSum() {
+  total = 0
+  multiplier = 1
+  currentTurnPlaced.forEach(function(element){
+    baseScore = tiles[element.occupied.word][0]
+    if (element.property == 1) {
+      baseScore *= 2
+    } else if (element.property == 2) {
+      baseScore *= 3
+    } else if (element.property == 3) {
+      multiplier *= 2
+    } else if (element.property == 4) {
+      multiplier *= 3
+    }
+    total += baseScore
+  })
+  total *= multiplier
+  return total
+}
+
+resetButton.addEventListener("click", resetTile)
+varifyButton.addEventListener("click", varify)

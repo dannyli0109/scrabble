@@ -1,11 +1,13 @@
 var Player = function() {
-  this.hand = []
+  this.hand = [null,null,null,null,null,null,null]
+  this.score = 0
 }
 
 Player.prototype.draw = function() {
-  remaining = 7 - this.hand.length
-  for (var i = 0; i < remaining; i++) {
-    randomElement = deck.splice(Math.floor(Math.random()*deck.length),1)[0]
-    this.hand.push(new Hand(this.hand.length, 50, randomElement))
+  for (var i = 0; i < this.hand.length; i++) {
+    if (this.hand[i] == null) {
+      randomElement = deck.splice(Math.floor(Math.random()*deck.length),1)[0]
+      this.hand[i] = new Hand(i, 50, randomElement)
+    }
   }
 }

@@ -6,16 +6,16 @@ var Hand = function(i, width, word) {
   this.originX = i * width + (400/8 * i) + 400/8
   this.originY = canvas_height - 75
   this.word = word
-  this.placed = false
+  this.placed = null
 }
 
 Hand.prototype.display = function() {
+  if (this.intercept(mouseX, mouseY)) {
+    fill(255,0,0)
+  } else {
+    fill(255)
+  }
   if (!this.placed) {
-    if (this.intercept(mouseX, mouseY)) {
-      fill(255,0,0)
-    } else {
-      fill(255)
-    }
     rect(this.x,this.y,this.width, this.width)
     fill(0)
     textAlign(CENTER,CENTER)
