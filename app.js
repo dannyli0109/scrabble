@@ -113,6 +113,10 @@ function initPlayer(num) {
   return players
 }
 
+function calculateScore() {
+  
+}
+
 
 function setup() {
   createCanvas(canvas_width,canvas_height)
@@ -157,7 +161,24 @@ function mouseDragged() {
   if (selected != null) {
     originX = selected.x
     originY = selected.y
-    selected.x = mouseX
-    selected.y = mouseY
+    selected.x = mouseX - selected.width/2
+    selected.y = mouseY - selected.width/2
+  }
+}
+
+function mouseReleased() {
+  if (selected != null) {
+    for (var i = 0; i < numCol; i++) {
+      for (var j = 0; j < numRow; j++) {
+        if (board[i][j].intercept(mouseX, mouseY)) {
+          board[i][j].occupied = selected
+          selected.placed = true;
+        } else {
+          selected.x = selected.originX
+          selected.y = selected.originY
+        }
+      }
+    }
+    selected = null
   }
 }
